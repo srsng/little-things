@@ -5,13 +5,12 @@
 
 使用方法
 --
-已有打包程序.exe，可以直接下载使用
-在语音键盘侠.py/.exe同一文件夹中放入文件“load_cmds.txt”，
-其格式为：指令\n音频的绝对路径\n
-\n用回车替代
-
-eg:
+已有打包程序.exe，可以直接下载使用。  
+在语音键盘侠.py/.exe同一文件夹中放入文件“load_cmds.txt”  
+格式与样例如下
 ```
+指令
+对应音频的绝对路径
 jntm
 E:\Codes\Py\sound_pack/jntm.mp3
 ngma
