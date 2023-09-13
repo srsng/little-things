@@ -12,8 +12,8 @@ python 版本：3.6 及以上
 ```shell
 pip install DrissionPage
 ```
-DrissionPage初始化参考[DrissionPage文档](http://g1879.gitee.io/drissionpagedocs/get_start/installation_and_import/)
-
+DrissionPage初始化参考[DrissionPage文档](http://g1879.gitee.io/drissionpagedocs/get_start/before_start/#_3)
+然后根据实际情况使用drissionpage_init.py
 ## 使用
 在main.py中把Edge浏览器用户profile名称如下形式添加到user_list中，然后运行main.py即可。
 ```python
