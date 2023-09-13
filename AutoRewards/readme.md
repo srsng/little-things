@@ -1,7 +1,7 @@
 ## 获取用户profile名称
 右键Edge快捷方式，选择属性  
-![img_1.png](img_1.png)  
-在目标中有--profile-directory=xxx
+![img_1.png](https://github.com/srsng/little-things/blob/main/AutoRewards/img_1.png)  
+在"目标"中有--profile-directory=xxx
 默认为Default，或Profile 1  
 profile-dir可能的值在"C:\Users\USERNAME\AppData\Local\Microsoft\Edge\User Data"  
 在该路径下可以找到Default以及零个或多个Profile #文件夹，
