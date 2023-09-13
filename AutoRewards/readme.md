@@ -7,16 +7,19 @@ profile-dir可能的值在"C:\Users\USERNAME\AppData\Local\Microsoft\Edge\User D
 在该路径下可以找到Default以及零个或多个Profile #文件夹，
 其中#为数字，如Profile 1、Profile 2等等。
 ## 安装
-任何支持DrissionPage的python版本与最新的DrissionPage模块即可。
+python 版本：3.6 及以上  
+安装DrissionPage模块
 ```shell
 pip install DrissionPage
 ```
+DrissionPage初始化参考[DrissionPage文档](http://g1879.gitee.io/drissionpagedocs/get_start/installation_and_import/)
+
 ## 使用
 在main.py中把Edge浏览器用户profile名称如下形式添加到user_list中，然后运行main.py即可。
 ```python
 user_list = ['Profile 1', 'Default', 'Profile 2', 'Profile 3']
 ```
-**注意**，要先登录！  
+**注意**，要先登录！
 
 ## 未来
 目前本人还未了解DrissionPage模块的打包方法，
