@@ -2,12 +2,17 @@ import DrissionPage as DP
 import time
 import random
 from DrissionPage.errors import ElementNotFoundError
+# from DrissionPage.common import Keys
+# from DrissionPage.common import ActionChains
+import pyautogui
 
 
 class DailySearch:
     def __init__(self, headless=True, user=None):
         self.reward_url = 'https://rewards.bing.com/'
         self.search_url = 'https://cn.bing.com/search?q=at'  # 搜索页面
+        self.search_url_pc_with_key = 'https://cn.bing.com/search?q={}'
+        self.search_url_mobile_with_key = "https://cn.bing.com/search?q={}&qs=ds&form=QBRE&pc=ACTS"
         self.reward_check_url = "https://rewards.bing.com/status/pointsbreakdown"
         self.co = DP.ChromiumOptions()
 
@@ -23,6 +28,8 @@ class DailySearch:
             self.co.set_user(user=user)
 
         self.page = DP.ChromiumPage(self.co)
+
+        # self.ac = ActionChains(self.page)
 
     def __del__(self):
         self.page.quit()
@@ -95,16 +102,37 @@ class DailySearch:
         """
         if times > 0:
             for i in range(times):
-                self.page.get(self.search_url)
-                self.page.ele('#sb_form_q').input(self.words[i])
-                self.page.ele('#sb_form_go').click()
+                self.page.get(self.search_url_pc_with_key.format(self.words[i]))
+                # self.page.ele('#sb_form_q').input(self.words[i])
+                # self.page.ele('#sb_form_go').click()
                 time.sleep(0.5)
 
         # print("每日PC搜索完成")
 
-    def mobile_search_daily(self):
+    @staticmethod
+    def mobile_model():
+        # # 模拟按下F12
+        # self.ac.key_down(Keys.F12)
+        # self.ac.key_up(Keys.F12)
+        # # 按下Ctrl+Shift+M
+        # self.ac.key_down(Keys.CTRL)
+        # self.ac.key_down(Keys.SHIFT)
+        # self.ac.type("m")
+        # self.ac.key_up(Keys.CTRL)
+        # self.ac.key_up(Keys.SHIFT)
+        pyautogui.hotkey('ctrl', 'shift', "i")
+        time.sleep(1)
+        pyautogui.hotkey('ctrl', 'shift', "m")
+        time.sleep(0.5)
+
+    def mobile_search_daily(self, times):
         # TODO 移动端搜索
-        pass
+        self.mobile_model()
+        if times > 0:
+            for i in range(times):
+                self.page.get(self.search_url_mobile_with_key.format(self.words[i]))
+                time.sleep(0.5)
+        self.mobile_model()
 
     def solve_more_activities(self):
         self.page.get(self.reward_url)
@@ -123,11 +151,16 @@ class DailySearch:
         # 每日PC搜索
         times = self.laptop_search_get_needs()
         self.pc_search_daily(int(times) + 1)
-        print("\tuser \"{}\" Search Done".format(self.co.user))
-        # 每日移动搜索
+        print("\tuser \"{}\" PC Search Done".format(self.co.user))
 
+        # 每日移动搜索
+        times = 20
+        self.mobile_search_daily(times)
+        print("\tuser \"{}\" Mobile Search Done".format(self.co.user))
         # 每日积分活动
+        self.page.new_tab(self.reward_url)
         self.solve_more_activities()
+
         print("\tuser \"{}\" Activities Done".format(self.co.user))
 
     def quick_start(self, times):
@@ -150,33 +183,23 @@ class DailySearch:
                     print(f"[Test] [{typeName.split('.')[0]}]: " + i)
                     eval(f"{typeName}.{i}()")
 
-        # @staticmethod
-        # def test_quiz():
-        #     ds = DailySearch(False)
-        #     ds.page.get(
-        #         'https://cn.bing.com/search?q=Bing%20Homepage%20quiz&form=ML2BF1&OCID=ML2BF1&PUBL=RewardsDO&PROGRAMNAME=BingDailyOfferIN&CREA=ML2BF1')
-        #     ds.reward_quiz()
-        #     del ds
-
-        # @staticmethod
-        # def test_check_reward_ok():
-        #     # TODO 测试check_reward_ok
-        #     ds = DailySearch(False)
-        #     print(ds.reward_check_ok_clone())
-        #     print(ds.reward_check_ok())
-        #     input()
-
         @staticmethod
         def test_test():
             print("test_example")
 
+        @staticmethod
+        def test_mobile_model():
+            ds = DailySearch(False)
+            ds.mobile_model()
+            time.sleep(10000)
+
+        @staticmethod
+        def test_mobile_search():
+            ds = DailySearch(False)
+            ds.mobile_search_daily(5)
+
 
 if __name__ == '__main__':
-    # ds = DailySearch(False,"Default")
-    # ds.run()
-    # ds.quick_start(10)
-    # time.sleep(10000)
-    # del ds
-    # mu = MultiUser("Default","Profile 1")
-    # mu.run()
+    # DailySearch.Tests.test_mobile_model()
+    DailySearch.Tests.test_mobile_search()
     quit()
