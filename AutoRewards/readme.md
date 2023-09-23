@@ -19,6 +19,11 @@ DrissionPage初始化参考[DrissionPage文档](http://g1879.gitee.io/drissionpa
 ```python
 user_list = ['Profile 1', 'Default', 'Profile 2', 'Profile 3']
 ```
+### 移动搜索自动
+支持移动端自动搜索，但是必须把**headless**赋值为False，即必须前台。  
+因为目前的打开开发者工具并启动设备仿真（ctrl+shift+M）只能通过pyautogui发送到焦点窗口。  
+DrissionPage的方式不起作用，可能是我的用法有误。  
+如果有更好的有效解决方式希望告知！  
 **注意**，要先登录！
 
 ## 未来
