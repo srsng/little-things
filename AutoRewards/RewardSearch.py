@@ -10,11 +10,9 @@ class DailySearch:
         self.reward_url = 'https://rewards.bing.com/'
         self.search_url = 'https://cn.bing.com/search?q=at'  # 搜索页面
         self.search_url_pc_with_key = 'https://cn.bing.com/search?q={}'
-        self.search_url_mobile_with_key = "https://cn.bing.com/search?q={}&qs=ds&form=QBRE&pc=ACTS"
+        self.search_url_mobile_with_key = "https://cn.bing.com/search?q={}&qs=ds&form=ANSPH1&pc=EDGEXST"
         self.reward_check_url = "https://rewards.bing.com/status/pointsbreakdown"
         self.co = DP.ChromiumOptions()
-
-        self.login_url = 'https://login.live.com/'
 
         if headless:
             self.co.set_headless()
@@ -24,28 +22,16 @@ class DailySearch:
         else:
             self.co.set_user(user=user)
 
+        # 自动打开开发者工具
+        self.co.set_argument("--auto-open-devtools-for-tabs")
+
         self.page = DP.ChromiumPage(self.co)
 
-        # self.ac = ActionChains(self.page)
+        self.page.set.main_tab()
 
     def __del__(self):
         print("[DailySearch]: user {} DONE".format(self.co.user))
         self.page.quit()
-
-    def init_page(self):
-        self.page = DP.ChromiumPage(self.co)
-
-    def signin(self, username, password):
-        """
-        not stable
-        """
-        self.page.get(self.login_url)
-        self.page.ele('#i0116').input(username)
-        self.page.ele('#idSIButton9').click()
-        time.sleep(1)
-        self.page.ele('#i0118').input(password)
-        self.page.ele('#idSIButton9').click()
-        time.sleep(3)
 
     def open_search_url(self):
         """
@@ -71,33 +57,34 @@ class DailySearch:
         if times > 0:
             for i in range(times):
                 self.page.get(self.search_url_pc_with_key.format(self.random_letters()))
-                # self.page.ele('#sb_form_q').input(self.words[i])
-                # self.page.ele('#sb_form_go').click()
                 time.sleep(0.2)
 
-        # print("每日PC搜索完成")
+        return None
 
-    @staticmethod
-    def mobile_model_on():
-        pyautogui.hotkey('ctrl', 'shift', "i")
-        time.sleep(1)
+    def mobile_model_on(self):
+        self.page.to_main_tab()
+        self.page.close_other_tabs()
+        # pyautogui.hotkey('ctrl', 'shift', "i")
+        # time.sleep(1)
         pyautogui.hotkey('ctrl', 'shift', "m")
         time.sleep(0.5)
 
-    @staticmethod
-    def mobile_model_off():
+    def mobile_model_off(self):
+        self.page.to_main_tab()
+        self.page.close_other_tabs()
         pyautogui.hotkey('ctrl', 'shift', "m")
         time.sleep(0.5)
-        pyautogui.hotkey('ctrl', 'shift', "i")
-        time.sleep(0.4)
+        # pyautogui.hotkey('ctrl', 'shift', "i")
+        # time.sleep(0.4)
 
     def mobile_search_daily(self, times: int):
-        self.mobile_model_on()
         if times > 0:
+            self.mobile_model_on()
             for i in range(times):
                 self.page.get(self.search_url_mobile_with_key.format(self.random_letters()))
                 time.sleep(0.4)
-        self.mobile_model_off()
+            self.mobile_model_off()
+        return None
 
     def solve_more_activities(self):
         self.page.get(self.reward_url)
@@ -106,7 +93,6 @@ class DailySearch:
             try:
                 card.ele('x://span[@class="mee-icon mee-icon-AddMedium"]', timeout=0.5)
                 card.ele('x://a[@class="ds-card-sec"]').click()
-                # self.page.close_tabs()
                 time.sleep(1)
             except:
                 pass
@@ -130,22 +116,42 @@ class DailySearch:
 
     def get_times(self):
         self.page.get(self.reward_check_url)
-        cur_status_ls = self.page.eles('x://p[@class="pointsDetail c-subheading-3 ng-binding"]//text()')
-        cur_status_ls = [int(str(i).replace("/", "").replace(" ", "")) for i in cur_status_ls]
-        print(f"{cur_status_ls[0]}/{cur_status_ls[1]}, {cur_status_ls[2]}/{cur_status_ls[3]}")
-        pc_times = (cur_status_ls[1] - cur_status_ls[0]) // (3 if cur_status_ls[1] == 90 else 5)
-        mobile_time = (cur_status_ls[3] - cur_status_ls[2]) // (3 if cur_status_ls[3] == 60 else 5)
+        try:
+            cur_status_ls = self.page.eles('x://p[@class="pointsDetail c-subheading-3 ng-binding"]//text()')
+            cur_status_ls = [int(str(i).replace("/", "").replace(" ", "")) for i in cur_status_ls]
+            print(f"{cur_status_ls[0]}/{cur_status_ls[1]}, {cur_status_ls[2]}/{cur_status_ls[3]}")
+            pc_times = (cur_status_ls[1] - cur_status_ls[0]) // (3 if cur_status_ls[1] == 90 else 5)
+            mobile_time = (cur_status_ls[3] - cur_status_ls[2]) // (3 if cur_status_ls[3] == 60 else 5)
+        except:
+            print("Something wrong, try doing max times.")
+            pc_times = 30
+            mobile_time = 20
+
         return pc_times, mobile_time
 
-    def run(self):
-        do = True
+    def do_search(self, pc_search: bool = True, mobile_search: bool = False):
+        do_pc = pc_search
+        do_mobile = mobile_search
         loop_times = 0
-        while do:
+
+        while do_pc or do_mobile:
             loop_times += 1
             pc, mo = self.get_times()
-            self.pc_search_daily(pc)
-            self.mobile_search_daily(mo)
-            if pc == 0 and mo == 0:
-                do = False
+
+            if pc_search:
+                self.pc_search_daily(pc)
+                if pc == 0:
+                    do_pc = False
+
+            if mobile_search:
+                self.mobile_search_daily(mo)
+                if mo == 0:
+                    do_mobile = False
+
             if loop_times > 4:
-                do = False
+                do_pc = False
+                do_mobile = False
+
+    def run(self, pc_search: bool = True, mobile_search: bool = True):
+        self.do_search(pc_search=pc_search, mobile_search=mobile_search)
+        self.solve_more_activities()
